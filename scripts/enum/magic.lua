@@ -1215,4 +1215,5 @@ xi.magic.spell =
     ARCIELA_II            = 1017,
     IROHA_II              = 1018,
     SHANTOTTO_II          = 1019,
+    CLAUDE                = 1020,
 }

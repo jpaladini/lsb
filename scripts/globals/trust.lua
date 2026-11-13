@@ -37,7 +37,7 @@ xi.trust.messageOffset =
     SPECIAL_MOVE_2 = 19,
 }
 
-local maxMessagePage = 121
+local maxMessagePage = 122
 
 local rovKIBattlefieldIDs = set{
     5,    -- Shattering Stars (WAR LB5)
@@ -188,6 +188,7 @@ local poolIDToMessagePageOffset =
     [6017] = 85,  -- Arciela II
     [6018] = 111, -- Iroha II
     [6019] = 112, -- Shantotto II
+    [6020] = 121, -- Claude
 }
 
 -- TODO: handle Dynamis Divergence, Omen, etc that are not "battlefields" but have a trust upper limit.

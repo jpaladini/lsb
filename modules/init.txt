@@ -39,3 +39,4 @@
 custom/commands/
 custom/lua/test_npcs_in_gm_home.lua
 custom/sql/curilla_beast_mode.sql
+custom/sql/claude_trust.sql
