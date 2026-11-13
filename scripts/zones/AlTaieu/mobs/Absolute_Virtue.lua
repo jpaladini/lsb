@@ -47,7 +47,7 @@ xi = xi or {}
 xi.av = xi.av or {}
 
 -- While this flag is in place, AV's won't drop any loot. Sorry!
-xi.av.experimental = true
+xi.av.experimental = false
 
 -- Set to true to get local debug prints about AV's behavior
 local debugAV = false
@@ -200,9 +200,8 @@ entity.onMobSpawn = function(mob)
     -- reset av
     mob:setAnimationSub(1)
 
-    if xi.av.experimental then
-        mob:setDropID(0) -- No loot!
-    end
+    -- Drops enabled
+    mob:setDropID(3)
 
     xi.av.regen = 250
     xi.av.bracelets = false
@@ -336,6 +335,13 @@ end
 entity.onMobDeath = function(mob, player, optParams)
     if player then
         player:addTitle(xi.title.VIRTUOUS_SAINT)
+        player:addItem(1913) -- Sin of Indignation
+        player:addItem(1914) -- Sin of Indolence
+        player:addItem(1915) -- Sin of Indulgence
+        player:addItem(1916) -- Sin of Invidiousness
+        player:addItem(1917) -- Sin of Insolence
+        player:addItem(1918) -- Sin of Infatuation
+        player:addItem(1919) -- Sin of Intemperance
     end
 
     local firstCall = optParams.isKiller or optParams.noKiller
