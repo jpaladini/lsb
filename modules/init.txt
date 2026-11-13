@@ -39,3 +39,5 @@
 custom/commands/
 custom/lua/test_npcs_in_gm_home.lua
 custom/sql/curilla_beast_mode.sql
+custom/sql/skulkers_plus3.sql
+custom/sql/nyame_path_b.sql
