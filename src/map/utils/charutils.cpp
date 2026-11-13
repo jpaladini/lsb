@@ -4845,46 +4845,51 @@ void DistributeExperiencePoints(CCharEntity* PChar, CMobEntity* PMob)
                     }
 
                     // Per monster caps pulled from: https://ffxiclopedia.fandom.com/wiki/Experience_Points
+                    // CUSTOM: retail caps (400/500/600) tripled so tough mobs aren't clamped before
+                    // the chain bonus and EXP_RATE are applied.
                     if (PMember->GetMLevel() <= 50)
                     {
-                        exp = std::fmin(exp, 400.0f);
+                        exp = std::fmin(exp, 1200.0f);
                     }
                     else if (PMember->GetMLevel() <= 60)
                     {
-                        exp = std::fmin(exp, 500.0f);
+                        exp = std::fmin(exp, 1500.0f);
                     }
                     else
                     {
-                        exp = std::fmin(exp, 600.0f);
+                        exp = std::fmin(exp, 1800.0f);
                     }
 
-                    if (mobCheck > EMobDifficulty::DecentChallenge)
+                    // CUSTOM: retail gates chains behind EvenMatch or tougher (> DecentChallenge), which
+                    // means almost nothing chains at 99. Anything that awards exp at all now chains.
+                    if (mobCheck > EMobDifficulty::TooWeak)
                     {
                         if (PMember->expChain.chainTime > timer::now() || PMember->expChain.chainTime == timer::time_point::min())
                         {
                             chainactive = true;
+                            // CUSTOM: bonus curve raised from retail 1.2x-1.55x.
                             switch (PMember->expChain.chainNumber)
                             {
                                 case 0:
                                     exp *= 1.0f;
                                     break;
                                 case 1:
-                                    exp *= 1.2f;
-                                    break;
-                                case 2:
-                                    exp *= 1.25f;
-                                    break;
-                                case 3:
-                                    exp *= 1.3f;
-                                    break;
-                                case 4:
-                                    exp *= 1.4f;
-                                    break;
-                                case 5:
                                     exp *= 1.5f;
                                     break;
+                                case 2:
+                                    exp *= 1.75f;
+                                    break;
+                                case 3:
+                                    exp *= 2.0f;
+                                    break;
+                                case 4:
+                                    exp *= 2.25f;
+                                    break;
+                                case 5:
+                                    exp *= 2.5f;
+                                    break;
                                 default:
-                                    exp *= 1.55f;
+                                    exp *= 3.0f;
                                     break;
                             }
                         }
@@ -5109,6 +5114,16 @@ void DistributeExperiencePoints(CCharEntity* PChar, CMobEntity* PMob)
                                     PMember->expChain.chainTime = timer::now() + 60s;
                                     break;
                             }
+                        }
+
+                        // CUSTOM: widen whatever window the retail tables above just picked.
+                        // Triples it and enforces a 180s floor (retail bottoms out at 60s), so a
+                        // chain survives long pulls, repops and travel between camps.
+                        {
+                            const auto stockWindow = std::chrono::duration_cast<std::chrono::seconds>(PMember->expChain.chainTime - timer::now());
+                            const auto widened     = std::max(stockWindow * 3, std::chrono::seconds(180));
+
+                            PMember->expChain.chainTime = timer::now() + widened;
                         }
                     }
                     // pet or companion exp penalty needs to be added here
@@ -5472,7 +5487,10 @@ void AddExperiencePoints(bool expFromRaise, CCharEntity* PChar, CBaseEntity* PMo
     // exp added from raise shouldn't display a message. Don't need a message for zero exp either
     if (!expFromRaise && exp > 0)
     {
-        if (mobCheck >= EMobDifficulty::EvenMatch && isexpchain)
+        // CUSTOM: must stay in sync with the loosened chain gate in DistributeExperiencePoints.
+        // This branch is what increments chainNumber, so a stricter check here would stop chains
+        // from ever building on the weaker mobs we now allow to chain.
+        if (mobCheck > EMobDifficulty::TooWeak && isexpchain)
         {
             if (PChar->expChain.chainNumber != 0)
             {
